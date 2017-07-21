@@ -30,6 +30,7 @@ public class LoginServlet extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		//username and password fetched from UI
 		String username=request.getParameter("username");
 		String password=request.getParameter("password");
 		SLUtil slObj=new SLUtil();
