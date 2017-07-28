@@ -48,8 +48,7 @@ public class LoginServlet extends HttpServlet {
 				{
 					response.sendRedirect("/Serverless/JSP/ADMIN/AdminHome.jsp");
 				}
-				else
-				{
+				else				{
 					response.sendRedirect("/Serverless/JSP/USER/UserHome.jsp");
 				}
 			}	
