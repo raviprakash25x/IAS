@@ -116,13 +116,23 @@ public class ServiceRequest
 			if(!flag)
 			{
 				String IP=new MonitorTable().getFreeServer();
-				//TODO find out where this ip is put to use
+				/*
+				 * It is possible that getFreeServer() returns NULL
+				 * if no VMs are free. In that case, we need to start
+				 * a new VM
+				 */
 				if(IP!=null)
 				{
 					JSONObject j=new JSONObject();
 					j.put("ip", IP);
 					response.put("server", j);
 				}	
+				/*
+				 * As a machine is not found where the reqd service
+				 * is running, we need to forward the request to
+				 * the service manager to start a new service. So 
+				 * forwarding this to serviceManager queue.
+				 */
 				response.put("queue","service_manager");
 				response.put("type","create_service");
 				if(!servicename.equalsIgnoreCase("logging"))
@@ -131,6 +141,11 @@ public class ServiceRequest
 			//found a system where service is running
 			else
 			{
+				/*
+				 * As a machine is found where the reqd service
+				 * is running(with less load), send it the queue 
+				 * of that service
+				 */
 				response.put("queue",servicename);
 				response.put("type","service_request");
 				

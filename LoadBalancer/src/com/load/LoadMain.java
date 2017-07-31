@@ -85,6 +85,7 @@ public class LoadMain
 		case "update_service":	UpdateTable uOb=new UpdateTable();
 		uOb.updateService(message,messageObject);
 		break;
+		//service req eg: login
 		case "service_request":	ServiceRequest sObj=new ServiceRequest();
 		response=sObj.processRequest(message,messageObject);
 		break;
