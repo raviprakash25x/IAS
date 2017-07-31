@@ -31,6 +31,11 @@ public class UserServlet extends HttpServlet {
 	{
 		super();
 	}
+	
+	/**
+	 * As of now, gets called from the service manager
+	 * to create a new service on a specified IP(machine)
+	 */
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{

@@ -143,7 +143,7 @@ public class RequestUtil
 	// format of req www.aw.com/servlet/service_name?name=hello
 	// it should be like this www.aw.com/servlet?name=hello
 	/**
-	 * Genering method to process request
+	 * Generic method to process request
 	 * The jSon object will contain the service name
 	 * @param container
 	 * @return
@@ -178,11 +178,17 @@ public class RequestUtil
 		JSONObject request_parameters = new JSONObject();
 		container.put("type", "service_request");
 		Enumeration<String> parameterNames = req.getParameterNames();
+		
 		while (parameterNames.hasMoreElements()) 
 		{
 			String paramName = parameterNames.nextElement();
 			String[] paramValues = req.getParameterValues(paramName);
 			String paramValue = paramValues[0];
+			
+			/*
+			 * service name = vm_manager if coming from service
+			 * manager
+			 */
 			if(paramName.equalsIgnoreCase("service_name"))
 			{
 				container.put("service_name", paramValue);
