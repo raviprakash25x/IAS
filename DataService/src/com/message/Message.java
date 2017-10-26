@@ -8,25 +8,28 @@ import java.net.URL;
 import java.util.LinkedList;
 import java.util.Queue;
 
-import com.rabbitmq.client.*;
-import com.util.GlobalThread;
-
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+import com.data.DataMain;
+import com.rabbitmq.client.AMQP;
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Connection;
+import com.rabbitmq.client.ConnectionFactory;
+import com.rabbitmq.client.Consumer;
+import com.rabbitmq.client.DefaultConsumer;
+import com.rabbitmq.client.Envelope;
+
 public class Message 
 {
 	private static String RECIEVE_QUEUE_NAME;
-	/**
-	 * ip Addr of Rabbit MQ server
-	 */
 	private static String rabbitIP;
 	private static String moduleName;
 	private static String gateWayAddr;
-
+	
 	public static Queue<JSONObject> messageQueue;
-
+	
 	public Message(String ip,String queue_name,String modulename,String gatewayAddr) 
 	{
 		rabbitIP=ip;
@@ -35,8 +38,8 @@ public class Message
 		gateWayAddr=gatewayAddr;
 		messageQueue=new LinkedList<JSONObject>();
 	}
-
-
+	
+	
 
 	public static String getRECIEVE_QUEUE_NAME() {
 		return RECIEVE_QUEUE_NAME;
@@ -67,15 +70,12 @@ public class Message
 	}
 
 
-/**
- * get rabbit IP of a particular message object
- * @return
- */
+
 	public String getRabbitIP()
 	{
 		return rabbitIP;
 	}
-
+	
 
 	public static String getGateWayAddr() {
 		return gateWayAddr;
@@ -86,38 +86,35 @@ public class Message
 	public static void setGateWayAddr(String gateWayAddr) {
 		Message.gateWayAddr = gateWayAddr;
 	}
-
-	/**
-	 * listening for messages received from the
-	 * RMQ server under "gateway" queue
-	 */
+	
 	public void recieveMessage()
 	{
 		try
 		{
 			ConnectionFactory factory = new ConnectionFactory();
-			factory.setHost(getRabbitIP());
-			Connection connection = factory.newConnection();
-			Channel channel = connection.createChannel();
-			channel.queueDeclare(RECIEVE_QUEUE_NAME, false, false, false, null);
-			Consumer consumer = new DefaultConsumer(channel) {
-				@Override
-				public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body)
-						throws IOException {
-					String message=  new String(body, "UTF-8");
-					JSONParser parser=new JSONParser();
-					try 
-					{
-						JSONObject json=(JSONObject)parser.parse(message);
-						GlobalThread.processResponse(json);
+		    factory.setHost(getRabbitIP());
+		    Connection connection = factory.newConnection();
+		    Channel channel = connection.createChannel();
+		    channel.queueDeclare(RECIEVE_QUEUE_NAME, false, false, false, null);
+		    Consumer consumer = new DefaultConsumer(channel) {
+		      @Override
+		      public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body)
+		          throws IOException {
+			        String message=  new String(body, "UTF-8");
+			        JSONParser parser=new JSONParser();
+			        try 
+			        {
+			        	JSONObject json=(JSONObject)parser.parse(message);
+						DataMain obj=new DataMain();
+			        	obj.processRequest(json);
 					} 
-					catch (ParseException e) 
-					{
+			        catch (ParseException e) 
+			        {
 						e.printStackTrace();
 					}
-				}
-			};
-			channel.basicConsume(RECIEVE_QUEUE_NAME, true, consumer);
+		        }
+		    };
+		    channel.basicConsume(RECIEVE_QUEUE_NAME, true, consumer);
 		}
 		catch(Exception exception)
 		{
@@ -126,12 +123,6 @@ public class Message
 		}
 	}
 	
-	/**
-	 * sends message to the prescribed queue
-	 * using the rabbit mq standard code
-	 * @param response
-	 */
-
 	public void sendMessage(JSONObject response)
 	{
 		final String SEND_QUEUE_NAME = (String) response.get("queue");
@@ -139,15 +130,15 @@ public class Message
 		try
 		{
 			ConnectionFactory factory = new ConnectionFactory();
-			factory.setHost(SENDHOSTADDRESS);
-			Connection connection = factory.newConnection();
-			Channel channel = connection.createChannel();
-			channel.queueDeclare(SEND_QUEUE_NAME, false, false, false, null);
-			String message = response.toJSONString();
-			channel.basicPublish("", SEND_QUEUE_NAME, null, message.getBytes("UTF-8"));
-			//System.out.println(" [x] Sent '" + message + "'");
+		    factory.setHost(SENDHOSTADDRESS);
+		    Connection connection = factory.newConnection();
+		    Channel channel = connection.createChannel();
+		    channel.queueDeclare(SEND_QUEUE_NAME, false, false, false, null);
+		    String message = response.toJSONString();
+		    channel.basicPublish("", SEND_QUEUE_NAME, null, message.getBytes("UTF-8"));
+		    //System.out.println(" [x] Sent '" + message + "'");
 			channel.close();
-			connection.close();	
+		    connection.close();	
 		}
 		catch(Exception e)
 		{
@@ -155,7 +146,7 @@ public class Message
 			logMessage("ERROR", "Error in sending messages on messaging queue =>"+e.getLocalizedMessage());
 		}
 	}
-
+	
 	@SuppressWarnings("unchecked")
 	public void logMessage(String messageType,String message)
 	{
@@ -166,7 +157,8 @@ public class Message
 		logObject.put("message", message);
 		sendMessage(logObject);
 	}
-
+	
+	@SuppressWarnings("unused")
 	public JSONObject callServiceURL(String urlString)
 	{
 		JSONObject message=new JSONObject();
@@ -174,13 +166,19 @@ public class Message
 		{
 			//If the we are connect a PC in other network
 			//System.setProperty("http.proxyHost", "proxy.iiit.ac.in");
-			//System.setProperty("http.proxyPort", "8080");
+		    //System.setProperty("http.proxyPort", "8080");
 			URL url = new URL(urlString);
 			HttpURLConnection h = (HttpURLConnection)url.openConnection();
 			h.setRequestMethod("POST");
 			h.setDoOutput(true);
 			BufferedReader reader = new BufferedReader( new InputStreamReader(h.getInputStream() ) );
 			String response = reader.readLine();
+			while( null != response )
+			{	
+				//System.out.println( response );
+				response = reader.readLine();
+				
+			}
 			if(response!=null)
 			{
 				JSONParser parser=new JSONParser();
@@ -194,6 +192,6 @@ public class Message
 		}
 		return message;
 	}
-
+	
 }
 

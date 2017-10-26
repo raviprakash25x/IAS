@@ -45,6 +45,10 @@ public class ServiceRequest
 			/*load the routing.xml file
 			 * This file contains :-
 			 * service | IP | queueName
+			 * 
+			 * In short this file will contain on what
+			 * machines, what all services are running and
+			 * there corresponding queue name in RMQ server
 			 */
 			File inputFile = new File("routing.xml");
 			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();

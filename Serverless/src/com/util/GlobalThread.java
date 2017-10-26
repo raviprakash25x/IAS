@@ -15,6 +15,7 @@ public class GlobalThread
 		RequestUtil.requestThMap=new HashMap<String,Thread>();
  		RequestUtil.responseMap=new HashMap<String,JSONObject>();
  		RequestUtil.messageObject=new Message("10.42.0.38", "gateway", "GATEWAY", "10.1.34.155:8114");
+ 		//Global thread listening to incoming messages
  		RequestUtil.messageObject.recieveMessage();
 	}
 	

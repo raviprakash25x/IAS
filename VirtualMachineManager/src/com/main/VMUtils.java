@@ -141,7 +141,7 @@ public class VMUtils
 	 * Start a new VM on one of the free machines.
 	 * @param message
 	 * @param messageObject
-	 * @return
+	 * @return details of vM
 	 */
 	public JSONObject startVM(JSONObject message,Message messageObject)
 	{
@@ -177,6 +177,7 @@ public class VMUtils
 					 if(capacity>childList.getLength())
 					 {
 						ip=element.getAttribute("ip"); 
+						//the count of the new VM to be started
 						vmNo=childList.getLength()+1;
 						machine=element;
 					 }	 
@@ -288,19 +289,32 @@ public class VMUtils
 		}
 		return vmDetails;
 	}
-	
+	/**
+	 * Starts a new VM on the given server(Server details)
+	 * @param serverDetails
+	 * @param vmNo
+	 * @return
+	 * @throws Exception
+	 */
 	public String sponVM(JSONObject serverDetails,int vmNo) throws Exception
 	{
 		System.out.println("Starting a new Virtual machine");
 		String username=(String)serverDetails.get("server_username");
 		String ip=(String)serverDetails.get("server_ip");
 		String password=(String)serverDetails.get("server_password");
+		//TODO what is SingleMachineSetup.sh file?
 		runScript("bash SingleMachineSetup.sh "+ip+" "+username+" "+password);
 		String IP=runScript("bash test.sh "+ip+" "+username+" "+password+" mc"+vmNo);
 		System.out.println("New virtual machine started");
 		return IP.substring(0,IP.length()-1);
 	}
 	
+	/**
+	 * Runs the given command script
+	 * @param command
+	 * @return
+	 * @throws Exception
+	 */
 	public String runScript(String command) throws Exception
 	{
 		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();

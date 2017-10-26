@@ -159,6 +159,7 @@ public class RequestUtil
 		boolean forward_this_request=true;
 		JSONObject msg=new JSONObject();
 		forward_this_request=true;
+		
 		if(forward_this_request)
 		{
 			 msg = forward_request(container);
@@ -188,6 +189,9 @@ public class RequestUtil
 			/*
 			 * service name = vm_manager if coming from service
 			 * manager
+			 * service name = server_manager if coming from VM
+			 * manager
+			 * service name = dataservice for fetching data (eg: repo path)
 			 */
 			if(paramName.equalsIgnoreCase("service_name"))
 			{

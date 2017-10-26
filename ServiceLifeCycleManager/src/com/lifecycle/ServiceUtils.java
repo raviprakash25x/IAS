@@ -35,6 +35,12 @@ public class ServiceUtils
 		return repoDetails;
 	}
 	
+	/**
+	 * runs the command script and returns the output
+	 * @param command
+	 * @return
+	 * @throws Exception
+	 */
 	public String runScript(String command) throws Exception
 	{
 		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -46,8 +52,17 @@ public class ServiceUtils
 	    return outputStream.toString();
 	}
 	
+	/**
+	 * deploy service on the specified destination (ip and credentials)
+	 * @param session
+	 * @param serviceName
+	 * @param destination
+	 * @param messageObject
+	 * @throws Exception
+	 */
 	public void deployJar(Session session,String serviceName,JSONObject destination, Message messageObject) throws Exception
 	{
+		//eg:- service name = Login, weather,etc
 		JSONObject source=getRepository(serviceName,messageObject);
 		String type=(String)source.get("type");
 		String i1=(String)source.get("ip");
@@ -57,6 +72,7 @@ public class ServiceUtils
 		String u2=(String)destination.get("username");
 		String p2=(String)destination.get("password");
 		String devPath=new String();
+		//TODO what is "dev"?
 		if(type.equalsIgnoreCase("dev"))
 		{
 			String path=(String)source.get("path");
@@ -70,9 +86,12 @@ public class ServiceUtils
 		{
 			devPath=(String)source.get("path");
 			String cmd="bash copy.sh "+i1+" "+u1+" "+p1+" "+i2+" "+u2+" "+p2+" "+devPath;
+			//copy jar to destination (available machine)
 			runScript(cmd);
 		}
+		
 		messageObject.logMessage("INFO", serviceName+" jar copied sucessfully ");
+		//deploy the copied jar
 		String depCmd="bash deploy.sh "+i2+" "+u2+" "+p2+" "+devPath.substring(devPath.lastIndexOf("/")+1)+" "+messageObject.getRabbitIP()+" "+serviceName+" "+serviceName+" "+Message.getGateWayAddr();
 		runScript(depCmd);
 		messageObject.logMessage("INFO", serviceName+" jar deployed sucessfully ");

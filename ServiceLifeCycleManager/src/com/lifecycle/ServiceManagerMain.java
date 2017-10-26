@@ -138,17 +138,21 @@ public class ServiceManagerMain
 		
 		messageObject.logMessage("INFO", "Fetched details from VM");
 		JSONObject destination=new JSONObject();
+		//TODO make credentials dynamic
 		destination.put("ip", serverDetails.get("ip"));
 		destination.put("username", serverDetails.get("username"));
 		destination.put("password", serverDetails.get("password"));
 		
+		//TODO check out functionality of "agent"
 		if(!message.containsKey("server"))
 		{
 			obj.deployJar(session, "agent", destination,messageObject);
 			messageObject.logMessage("INFO", "Deployed agent on VM");
 		}
 		
+		//deploy the service
 		obj.deployJar(session, serviceName, destination,messageObject);
+		
 		messageObject.logMessage("INFO", "Deployed "+serviceName+" on VM");
 		message.put("queue", message.get("service_name"));
 		message.put("parameters", message.get("parameters"));
@@ -163,6 +167,11 @@ public class ServiceManagerMain
 		//if no other VM is running on that machine update the servers.xml
 	}
 
+	/**
+	 * Since a new server is started by the the server manager,
+	 * the corresponding details needs to be updated xml file
+	 * @param serverDetails
+	 */
 	@SuppressWarnings("unchecked")
 	public void updateServer(JSONObject serverDetails)
 	{
@@ -173,7 +182,13 @@ public class ServiceManagerMain
 		message.put("ip", ip);
 		messageObject.sendMessage(message);
 	}
-
+	
+	/**
+	 * Once the jar/service is deployed, the same needs
+	 * to be updated in routing.xml on load balancer
+	 * @param serverDetails
+	 * @param serviceName
+	 */
 	@SuppressWarnings("unchecked")
 	public void updateService(JSONObject serverDetails,String serviceName)
 	{

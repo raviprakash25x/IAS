@@ -119,6 +119,7 @@ public class UpdateTable
 		String IP=(String)message.get("ip");
 		try
 		{
+			//TODO where in routing.xml machine ip is stored?
 			File inputFile = new File("routing.xml");
 			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
@@ -126,6 +127,7 @@ public class UpdateTable
 			doc.getDocumentElement().normalize();
 			NodeList nList = doc.getElementsByTagName("root");
 			Element server=doc.createElement("server");
+			//TODO change hardcode attributes
 			server.setAttribute("ip", IP);
 			server.setAttribute("status", "up");
 			server.setAttribute("cpu", "20.0");
